@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using Discord;
 using Discord.Commands;
 
@@ -10,6 +11,9 @@ namespace DiscordGameBot
 {
     public static class Manager
     {
+        private static string appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        private static DirectoryInfo appFolder = new DirectoryInfo(appPath);
+
         public static GameBot bot;
         public static Server server;
         public static DiscordClient client;
@@ -71,6 +75,8 @@ namespace DiscordGameBot
 
         public static void StartBot()
         {
+            string APIKEY = File.ReadAllText(appFolder.FullName + @"\apikey.txt");
+
             Manager.client = new DiscordClient(input =>
             {
                 input.LogLevel = LogSeverity.Info;
@@ -82,7 +88,7 @@ namespace DiscordGameBot
 
             Manager.client.ExecuteAndWait(async () =>
             {
-                await Manager.client.Connect("MjczOTY4MDIwMjc4MzQ1NzI4.C2rQbQ.wcKAcV_8HCLCtr06WPgGobonpvw", TokenType.Bot);
+                await Manager.client.Connect(APIKEY, TokenType.Bot);
             });
         }
 
