@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordNimBot
+namespace DiscordGameBot
 {
     public abstract class Game : IGame
     {
         private Queue<User> players;
         private Channel channel;
-        private IEnumerable<User> players1;
 
         public Queue<User> Players
         {
@@ -47,6 +46,8 @@ namespace DiscordNimBot
             {
                 this.Players.Enqueue(player);
             }
+
+            this.Reset();
         }
 
         public Game()

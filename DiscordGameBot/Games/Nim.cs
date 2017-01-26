@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 
-namespace DiscordNimBot.Games
+namespace DiscordGameBot.Games
 {
     public class Nim : Game
     {
@@ -27,8 +27,6 @@ namespace DiscordNimBot.Games
         public Nim(IEnumerable<User> players, Channel channel) : base(players, channel)
         {
             rnd = new Random();
-            this.Sticks = new Stack<Stick>();
-            this.Reset();
         }
 
         private Stack<Stick> Sticks
@@ -59,7 +57,9 @@ namespace DiscordNimBot.Games
 
         public override void Reset()
         {
-            for(int i = 0; i < 13; i++)
+            this.Sticks = new Stack<Stick>();
+
+            for (int i = 0; i < 13; i++)
             {
                 sticks.Push(new Stick());
             }
@@ -68,12 +68,22 @@ namespace DiscordNimBot.Games
         public override void Start()
         {
             this.started = true;
-            if (rnd.Next(0, 101) % 50 > 1)
+
+            int playercount = this.Players.Count;
+            int shuffle = rnd.Next(0, playercount);
+
+            for (int i = 0; i <= shuffle; i++)
             {
                 this.Players.Enqueue(this.Players.Dequeue());
             }
+
             this.Channel.SendMessage($"Los Geht's! {this.Players.Peek().NicknameMention} fängt an!");
             this.printField();
+
+            if (this.Players.Peek().Id == Manager.client.CurrentUser.Id)
+            {
+                AITurn();
+            }
         }
 
         public void printField()
@@ -128,6 +138,45 @@ namespace DiscordNimBot.Games
             this.Channel.SendMessage($"{Players.Peek().NicknameMention} ist jetzt am Zug.");
 
             this.printField();
+
+            if(this.Players.Peek().Id == Manager.client.CurrentUser.Id)
+            {
+                AITurn();
+            }
+        }
+
+        public void TakeSticks(int count)
+        {
+            if (!started)
+            {
+                return;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                this.Sticks.Pop();
+            }
+
+            if (this.StickCount == 0)
+            {
+                this.Done = true;
+                this.Channel.SendMessage($"{this.Players.Peek().NicknameMention} hat gewonnen! gg");
+                return;
+            }
+
+            this.Players.Enqueue(this.Players.Dequeue());
+
+            this.Channel.SendMessage($"{Players.Peek().NicknameMention} ist jetzt am Zug.");
+
+            this.printField();
+        }
+
+        public async void AITurn()
+        {
+            int take = (this.StickCount % 4) == 0 ? 1 : this.StickCount % 4;
+
+            await this.Channel.SendMessage($"Ich nehme {take} Hölzchen");
+            this.TakeSticks(take);
         }
 
         public static void RegisterCommands()
@@ -158,7 +207,10 @@ namespace DiscordNimBot.Games
 
                 gameInstance.TakeSticks(count, e.User);
 
-                gameInstance = null;
+                if (gameInstance.Done)
+                {
+                    gameInstance = null;
+                }
             });
         }
 

@@ -6,13 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordNimBot
+namespace DiscordGameBot
 {
     public class GameBot
     {
         List<Game> Games;
-
-
+        
         public GameBot()
         {
             Games = new List<Game>();
