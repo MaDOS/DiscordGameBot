@@ -11,7 +11,7 @@ namespace DiscordGameBot
 {
     public static class Manager
     {
-        private static string appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        private static string appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         private static DirectoryInfo appFolder = new DirectoryInfo(appPath);
 
         public static GameBot bot;
